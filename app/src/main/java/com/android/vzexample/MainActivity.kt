@@ -2,11 +2,10 @@ package com.android.vzexample
 
 import android.os.Bundle
 import android.view.View
-import android.widget.FrameLayout
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import com.android.vzexample.cheer_meter.CustomCheerMeter
+import com.android.vzexample.cheer_meter.CheerMeterView
 import com.android.vzexample.databinding.ActivityMainBinding
 import com.android.vzexample.poll.CustomPollWidget
 
@@ -43,8 +42,8 @@ class MainActivity : AppCompatActivity() {
         // Observe the LiveData in the ViewModel
         viewModel.cheerMeterViewModel.observe(this, Observer { viewModel ->
             // Update UI with myData
-            val  cheerWidetView = CustomCheerMeter(this@MainActivity).apply {
-                this.cheerMeterWidgetmodel = viewModel
+            val  cheerWidetView = CheerMeterView(this@MainActivity).apply {
+                this.widgetViewModel = viewModel
             }
             addViews(cheerWidetView)
 

@@ -7,4 +7,18 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="livelike_rank_label_text_color">#fff000</color>
+    <color name="livelike_rank_label_gradient_right">#4b28b4</color>
+    <color name="livelike_rank_label_gradient_left">#6928b4</color>
+    <color name="livelike_cheer_meter_background_color">#000000</color>
+    <color name="livelike_cheer_meter_title_color">#FFFFFF</color>
+    <color name="cheer_meter_team2_color">#a00028</color>
+    <color name="cheer_meter_team2_color2">#fa5064</color>
+    <color name="cheer_meter_team1_color">#2828b4</color>
+    <color name="cheer_meter_team1_color2">#50a0fa</color>
+    <color name="txt_cheer_meter_team_1_color">#FFFFFF</color>
+    <color name="txt_cheer_meter_team_2_color">#ffffff</color>
+    <color name="livelike_cheermeter_score_color">#FFFFFF</color>
+    <color name="livelike_cheer_meter_background_bottom_color">#000000</color>
 </resources>
