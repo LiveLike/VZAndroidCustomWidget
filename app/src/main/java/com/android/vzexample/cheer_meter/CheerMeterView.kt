@@ -1,13 +1,7 @@
 package com.android.vzexample.cheer_meter
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.RippleDrawable
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
@@ -15,11 +9,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
-import android.view.animation.DecelerateInterpolator
 import android.widget.LinearLayout
-import com.android.vzexample.R
 import com.android.vzexample.databinding.WidgetCheerMeterBinding
 import com.bumptech.glide.Glide
 import com.livelike.engagementsdk.widget.model.Resource
@@ -88,6 +78,10 @@ class CheerMeterView(context: Context, attr: AttributeSet? = null) :
                     LayoutParams.MATCH_PARENT,
                     vote2.toFloat()
                 )
+
+                val voteOnePercent = (vote1 * 100)/totalCount
+                binding?.txtCheerMeterTeam1?.text = "${voteOnePercent}%"
+                binding?.txtCheerMeterTeam2?.text = "${(100-voteOnePercent)}%"
             }
             if (mShowTeamResults) {
                 mShowTeamResults = false
@@ -130,13 +124,6 @@ class CheerMeterView(context: Context, attr: AttributeSet? = null) :
                 setupTeamCheerRipple(binding?.imgLogoTeam1!!, 0)
                 setupTeamCheerRipple(binding?.imgLogoTeam2!!, 1)
             }
-
-            if ((viewModel?.totalVoteCount ?: 0) > 0) {
-                clearStartingAnimations()
-                binding?.txtMyScore?.visibility = View.VISIBLE
-                binding?.txtMyScore?.text = "${viewModel?.totalVoteCount}"
-            }
-
             if (widgetViewModel?.widgetStateFlow?.value == null)
                 widgetViewModel?.widgetStateFlow?.value = WidgetStates.READY
         }
@@ -155,15 +142,8 @@ class CheerMeterView(context: Context, attr: AttributeSet? = null) :
             var handler = Handler(Looper.getMainLooper())
             override fun onTouch(v: View, event: MotionEvent): Boolean {
                 // when tapped for first time
-                if (v.isClickable) {
-                    this@CheerMeterView.clearStartingAnimations()
-                }
                 when (event.action) {
                     MotionEvent.ACTION_UP -> {
-                        if (v.isClickable) {
-
-                            teamView.animate().rotation(0F).setDuration(50)
-                                .start()
                             if (teamIndex == 0) {
                                 binding?.txtCheerMeterTeam1!!.animate().alpha(1F)
                                     .setDuration(30).start()
@@ -172,49 +152,15 @@ class CheerMeterView(context: Context, attr: AttributeSet? = null) :
                                     .setDuration(30).start()
                             }
                             handler.removeCallbacksAndMessages(null)
-                            handler.postDelayed(
-                                {
-                                    // txt_my_score.visibility = View.INVISIBLE
-                                    binding?.txtMyScore?.visibility = View.VISIBLE
-                                    binding?.txtMyScore?.text = "${viewModel?.totalVoteCount}"
-                                },
-                                500
-                            )
-
-                        }
                         return false
                     }
                     MotionEvent.ACTION_DOWN -> {
-                        if (v.isClickable) {
-
-                            val txtTeamView = if (teamIndex == 0) {
-                                binding?.txtCheerMeterTeam1
-                            } else {
-                                binding?.txtCheerMeterTeam2
-                            }
-                            teamView.animate().rotation(35F).setDuration(50)
-                                .start()
-                            val listener = object : AnimatorListenerAdapter() {
-                                override fun onAnimationEnd(animation: Animator) {
-                                    txtTeamView?.animate()?.alpha(1F)
-                                        ?.setDuration(30)
-                                        ?.start()
-                                }
-                            }
-                            txtTeamView?.animate()?.alpha(0F)?.setDuration(30)
-                                ?.setListener(listener)
-                                ?.start()
-
                             viewModel?.incrementVoteCount(
                                 teamIndex,
                                 viewModel?.dataFlow?.value?.resource?.getMergedOptions()
                                     ?.get(teamIndex)?.id
                             )
-//                                widgetLifeCycleEventsListener?.onUserInteract(widgetData)
-                            binding?.txtMyScore?.visibility = View.VISIBLE
-                            binding?.txtMyScore?.text = "${viewModel?.totalVoteCount}"
 
-                        }
                         return false
                     }
                     else -> return false
@@ -224,16 +170,8 @@ class CheerMeterView(context: Context, attr: AttributeSet? = null) :
         )
     }
 
-    // all animations which run before user start interactions
-    private fun clearStartingAnimations() {
-        binding?.imgLogoTeam1?.clearAnimation()
-        binding?.imgLogoTeam2?.clearAnimation()
-        binding?.lottieVsAnimation?.visibility = View.GONE
-    }
-
     private fun endObserver(it: Boolean?) {
         if (it == true) {
-            this@CheerMeterView.clearStartingAnimations()
             binding?.txtCheerMeterTeam1?.alpha = 1F
             binding?.txtCheerMeterTeam2?.alpha = 1F
             if (lastResult == null) {
