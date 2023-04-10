@@ -131,7 +131,7 @@ class PollListAdapter(
                 true -> (optionIdCount[item.id!!]!!.toFloat() / total.toFloat()) * 100
                 else -> 0F
             }
-            holder.itemTextBinding.txtPercent.text = "$percent %"
+            holder.itemTextBinding.txtPercent.text = "${percent.toInt()} %"
             holder.itemTextBinding.progressBarText.progress = percent.toInt()
         } else {
             holder.itemTextBinding.txtPercent.visibility = View.INVISIBLE
