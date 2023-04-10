@@ -53,20 +53,10 @@ class CheerMeterView(context: Context, attr: AttributeSet? = null) :
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         resourceObserver(viewModel?.dataFlow?.value)
-//        viewModel?.widgetStateFlow?.value?.let { stateObserver(it) }
         uiScope.launch {
-            /*launch {
-                viewModel?.dataFlow?.collect { resourceObserver(it) }
-            }*/
-//            launch {
-//                viewModel?.widgetStateFlow?.collect { stateObserver(it) }
-//            }
             launch {
                 viewModel?.resultsFlow?.collect { resultObserver(it) }
             }
-//            launch {
-//                viewModel?.disableInteractionFlow?.collect { disableInteractionObserver(it) }
-//            }
             launch {
                 viewModel?.voteEndFlow?.collect { endObserver(it) }
             }
@@ -106,7 +96,7 @@ class CheerMeterView(context: Context, attr: AttributeSet? = null) :
         }
     }
 
-    private var angle = false
+    //private var angle = false
 
     private fun resourceObserver(widget: CheerMeterWidget?) {
         widget?.apply {
@@ -121,43 +111,24 @@ class CheerMeterView(context: Context, attr: AttributeSet? = null) :
             }
 
             binding?.txtCheerMeterTitle?.text = resource.question
-//            if (viewModel?.isInteractivityExpired(resource.interactiveUntil) == false) {
-//                lockInteraction()
-//            }
             resource.interactiveUntil?.parseISODateTime()?.let {
                 val epochTimeMs = it.toInstant().toEpochMilli()
                 viewModel?.startInteractiveUntilTimeout(epochTimeMs)
             }
             if (optionList.size == 2) {
-                binding?.txtCheerMeterTeam1?.text = optionList[0].description
+                binding?.txtCheerMeterTeam1?.text = optionList[0].voteCount.toString()
                 Glide.with(context.applicationContext)
                     .load(optionList[0].imageUrl)
                     .into(binding?.imgLogoTeam1!!)
 
-                binding?.txtCheerMeterTeam2?.text = optionList[1].description
+                binding?.txtCheerMeterTeam2?.text = optionList[0].voteCount.toString()
 
                 Glide.with(context.applicationContext)
                     .load(optionList[1].imageUrl)
                     .into(binding?.imgLogoTeam2!!)
 
-//                binding?.imgLogoTeam1?.startAnimation(
-//                    AnimationUtils.loadAnimation(
-//                        context,
-//                        R.anim.scale_animation
-//                    ).apply {
-//                        repeatMode = Animation.REVERSE
-//                        repeatCount = Animation.INFINITE
-//                    }
-//                )
-//                binding?.imgLogoTeam2?.startAnimation(
-//                    AnimationUtils.loadAnimation(
-//                        context,
-//                        R.anim.scale_reverse_animation
-//                    ).apply {
-//                        repeatMode = Animation.REVERSE
-//                        repeatCount = Animation.INFINITE
-//                    }
-//                )
+                setupTeamCheerRipple(binding?.imgLogoTeam1!!, 0)
+                setupTeamCheerRipple(binding?.imgLogoTeam2!!, 1)
             }
 
             if ((viewModel?.totalVoteCount ?: 0) > 0) {
@@ -179,8 +150,8 @@ class CheerMeterView(context: Context, attr: AttributeSet? = null) :
 
     // this method setup the ripple view which animates on tapping up/cheering the team
     @SuppressLint("ClickableViewAccessibility")
-    private fun setupTeamCheerRipple(viewRipple: View, teamView: View, teamIndex: Int) {
-        viewRipple.setOnTouchListener(object : OnTouchListener {
+    private fun setupTeamCheerRipple(teamView: View, teamIndex: Int) {
+        teamView.setOnTouchListener(object : OnTouchListener {
             var handler = Handler(Looper.getMainLooper())
             override fun onTouch(v: View, event: MotionEvent): Boolean {
                 // when tapped for first time
@@ -190,61 +161,59 @@ class CheerMeterView(context: Context, attr: AttributeSet? = null) :
                 when (event.action) {
                     MotionEvent.ACTION_UP -> {
                         if (v.isClickable) {
-                            if (angle) {
-                                angle = false
-                                teamView.animate().rotation(0F).setDuration(50)
-                                    .start()
-                                if (teamIndex == 0) {
-                                    binding?.txtCheerMeterTeam1!!.animate().alpha(1F)
-                                        .setDuration(30).start()
-                                } else {
-                                    binding?.txtCheerMeterTeam2!!.animate().alpha(1F)
-                                        .setDuration(30).start()
-                                }
-                                handler.removeCallbacksAndMessages(null)
-                                handler.postDelayed(
-                                    {
-                                        // txt_my_score.visibility = View.INVISIBLE
-                                        binding?.txtMyScore?.visibility = View.VISIBLE
-                                        binding?.txtMyScore?.text = "${viewModel?.totalVoteCount}"
-                                    },
-                                    500
-                                )
+
+                            teamView.animate().rotation(0F).setDuration(50)
+                                .start()
+                            if (teamIndex == 0) {
+                                binding?.txtCheerMeterTeam1!!.animate().alpha(1F)
+                                    .setDuration(30).start()
+                            } else {
+                                binding?.txtCheerMeterTeam2!!.animate().alpha(1F)
+                                    .setDuration(30).start()
                             }
+                            handler.removeCallbacksAndMessages(null)
+                            handler.postDelayed(
+                                {
+                                    // txt_my_score.visibility = View.INVISIBLE
+                                    binding?.txtMyScore?.visibility = View.VISIBLE
+                                    binding?.txtMyScore?.text = "${viewModel?.totalVoteCount}"
+                                },
+                                500
+                            )
+
                         }
                         return false
                     }
                     MotionEvent.ACTION_DOWN -> {
                         if (v.isClickable) {
-                            if (!angle) {
-                                angle = true
-                                val txtTeamView = if (teamIndex == 0) {
-                                    binding?.txtCheerMeterTeam1
-                                } else {
-                                    binding?.txtCheerMeterTeam2
-                                }
-                                teamView.animate().rotation(35F).setDuration(50)
-                                    .start()
-                                val listener = object : AnimatorListenerAdapter() {
-                                    override fun onAnimationEnd(animation: Animator) {
-                                        txtTeamView?.animate()?.alpha(1F)
-                                            ?.setDuration(30)
-                                            ?.start()
-                                    }
-                                }
-                                txtTeamView?.animate()?.alpha(0F)?.setDuration(30)
-                                    ?.setListener(listener)
-                                    ?.start()
 
-                                viewModel?.incrementVoteCount(
-                                    teamIndex,
-                                    viewModel?.dataFlow?.value?.resource?.getMergedOptions()
-                                        ?.get(teamIndex)?.id
-                                )
-//                                widgetLifeCycleEventsListener?.onUserInteract(widgetData)
-                                binding?.txtMyScore?.visibility = View.VISIBLE
-                                binding?.txtMyScore?.text = "${viewModel?.totalVoteCount}"
+                            val txtTeamView = if (teamIndex == 0) {
+                                binding?.txtCheerMeterTeam1
+                            } else {
+                                binding?.txtCheerMeterTeam2
                             }
+                            teamView.animate().rotation(35F).setDuration(50)
+                                .start()
+                            val listener = object : AnimatorListenerAdapter() {
+                                override fun onAnimationEnd(animation: Animator) {
+                                    txtTeamView?.animate()?.alpha(1F)
+                                        ?.setDuration(30)
+                                        ?.start()
+                                }
+                            }
+                            txtTeamView?.animate()?.alpha(0F)?.setDuration(30)
+                                ?.setListener(listener)
+                                ?.start()
+
+                            viewModel?.incrementVoteCount(
+                                teamIndex,
+                                viewModel?.dataFlow?.value?.resource?.getMergedOptions()
+                                    ?.get(teamIndex)?.id
+                            )
+//                                widgetLifeCycleEventsListener?.onUserInteract(widgetData)
+                            binding?.txtMyScore?.visibility = View.VISIBLE
+                            binding?.txtMyScore?.text = "${viewModel?.totalVoteCount}"
+
                         }
                         return false
                     }
@@ -287,17 +256,5 @@ class CheerMeterView(context: Context, attr: AttributeSet? = null) :
                 resource.options?.find { option -> option.id == team2.id }?.voteCount
         }
         return false
-    }
-
-    fun collapse(v: View, duration: Int, targetHeight: Int) {
-        val prevHeight = v.width
-        val valueAnimator = ValueAnimator.ofInt(prevHeight, targetHeight)
-        valueAnimator.interpolator = DecelerateInterpolator()
-        valueAnimator.addUpdateListener { animation ->
-            v.layoutParams = LayoutParams(animation.animatedValue as Int, v.height)
-        }
-        valueAnimator.interpolator = DecelerateInterpolator()
-        valueAnimator.duration = duration.toLong()
-        valueAnimator.start()
     }
 }

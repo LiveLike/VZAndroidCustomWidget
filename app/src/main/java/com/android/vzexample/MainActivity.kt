@@ -56,25 +56,11 @@ class MainActivity : AppCompatActivity() {
     fun addViews(view: View){
         views.add(view)
         if(views.size == 2){
-            var lastView: View? = null
             for (index in views.indices) {
                 runOnUiThread {
-//                    val layoutParams = FrameLayout.LayoutParams(
-//                        FrameLayout.LayoutParams.MATCH_PARENT,
-//                        FrameLayout.LayoutParams.WRAP_CONTENT
-//                    )
-//                    if (lastView != null) {
-//                        layoutParams.topMargin = lastView!!.bottom + 20 // Set the top margin based on the bottom of the previous view
-//                    }
-//                    views[index]?.layoutParams = layoutParams
                     binding.root.addView(views[index], index)
-                    //lastView = views[index]!!
                 }
             }
-//            for (view in views){
-//                binding.root.addView(view,0)
-//            }
         }
-
     }
 }
