@@ -1,3 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <style name="cheer_meter_title">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:lineSpacingExtra">-1sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="team_name_style">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:lineSpacingExtra">2sp</item>
+        <item name="android:translationY">-0.82sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="vs_text_style">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:lineSpacingExtra">9sp</item>
+        <item name="android:translationY">-4.42sp</item>
+    </style>
 </resources>

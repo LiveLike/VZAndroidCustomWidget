@@ -9,7 +9,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-
         <LinearLayout
             android:id="@+id/lay_cheer_meter_header"
             android:layout_width="match_parent"
@@ -17,25 +16,27 @@
             android:background="@drawable/cheer_meter_rounded_corner_black_background"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:padding="@dimen/livelike_cheer_meter_padding">
+            android:paddingTop="32dp"
+            android:paddingEnd="16dp"
+            android:paddingStart="16dp"
+            android:paddingBottom="8dp">
 
             <TextView
                 android:id="@+id/txt_cheer_meter_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:padding="@dimen/cheer_meter_title_padding"
+                android:gravity="center_horizontal"
                 android:text="Choose Your Champion"
-                android:textAppearance="@style/TextAppearance.AppCompat.Subhead.Inverse"
-                android:textColor="@color/white"
-                android:textStyle="bold" />
+                android:textAppearance="@style/cheer_meter_title"
+                android:textColor="@color/white"/>
 
         </LinearLayout>
 
         <FrameLayout
             android:id="@+id/lay_cheer_meter_background"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="240dp"
             android:background="@drawable/cheer_meter_rounded_corner_black_background_bottom">
 
             <LinearLayout
@@ -47,41 +48,99 @@
                 android:paddingRight="@dimen/livelike_cheer_meter_padding"
                 android:paddingBottom="35dp">
 
-                <ImageView
-                    android:id="@+id/img_logo_team_1"
+                <LinearLayout
+                    android:id="@+id/frame_cheer_team_1"
                     android:layout_width="0dp"
+                    android:orientation="vertical"
+                    android:clickable="true"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:layout_marginRight="10dp"
-                    android:contentDescription="Team 1"
-                    android:padding="13dp" />
+                    android:layout_marginStart="4dp"
+                    android:background="@drawable/cheer_meter_btn_selector">
+
+                    <ImageView
+                        android:id="@+id/img_logo_team_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="0.7"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginEnd="12dp"/>
+
+                    <TextView
+                        android:id="@+id/team_1_text"
+                        android:text="Team 1"
+                        android:layout_weight="0.2"
+                        android:gravity="center"
+                        android:layout_gravity="center_horizontal"
+                        style="@style/team_name_style"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp" />
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="0.2"
+                        />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/lottie_vs_animation"
                     android:layout_width="50dp"
-                    android:textColor="@color/white"
                     android:text="VS"
                     android:gravity="center"
+                    style="@style/vs_text_style"
                     android:layout_height="match_parent"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp" />
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp" />
 
-                <ImageView
-                    android:id="@+id/img_logo_team_2"
+
+                <LinearLayout
+                    android:id="@+id/frame_cheer_team_2"
                     android:layout_width="0dp"
+                    android:orientation="vertical"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:layout_marginLeft="10dp"
-                    android:contentDescription="team two"
-                    android:padding="13dp" />
+                    android:clickable="true"
+                    android:layout_marginEnd="4dp"
+                    android:background="@drawable/cheer_meter_btn_selector">
+
+                    <ImageView
+                        android:id="@+id/img_logo_team_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="0.7"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginEnd="12dp"
+                        android:scaleType="fitXY" />
+
+                    <TextView
+                        android:id="@+id/team_2_text"
+                        android:text="Team 2"
+                        android:layout_weight="0.2"
+                        android:gravity="center"
+                        android:textColor="@color/white"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp" />
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="0.2"
+                        />
+                </LinearLayout>
 
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/ll_cheer_meter_teams"
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
+                android:layout_height="24dp"
                 android:layout_gravity="top"
+                android:layout_marginEnd="12dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginBottom="14dp"
                 android:animateLayoutChanges="true">
 
                 <TextView
@@ -89,7 +148,7 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@drawable/cheer_meter_team_1_background_gradient"
+                    android:background="#333333"
                     android:gravity="center"
                     android:padding="@dimen/livelike_cheer_meter_text_padding"
                     android:textColor="@color/white"
@@ -100,32 +159,12 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@drawable/cheer_meter_team_2_background_gradient"
+                    android:background="#EE0000"
                     android:gravity="center"
                     android:textColor="@color/white"
                     android:padding="@dimen/livelike_cheer_meter_text_padding"
                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead.Inverse" />
             </LinearLayout>
-
-<!--            <LinearLayout-->
-<!--                android:id="@+id/ll_my_score"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_gravity="center_horizontal|center_vertical"-->
-<!--                android:layout_margin="15dp"-->
-<!--                android:gravity="center"-->
-<!--                android:orientation="vertical">-->
-
-<!--                <TextView-->
-<!--                    android:id="@+id/txt_my_score"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:textColor="@color/black"-->
-<!--                    android:textSize="@dimen/livelike_cheer_meter_score_text_size"-->
-<!--                    android:textStyle="bold"-->
-<!--                    android:visibility="gone" />-->
-<!--            </LinearLayout>-->
-
         </FrameLayout>
 
     </LinearLayout>

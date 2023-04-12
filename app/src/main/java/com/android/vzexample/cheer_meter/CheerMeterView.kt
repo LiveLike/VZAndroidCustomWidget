@@ -121,8 +121,8 @@ class CheerMeterView(context: Context, attr: AttributeSet? = null) :
                     .load(optionList[1].imageUrl)
                     .into(binding?.imgLogoTeam2!!)
 
-                setupTeamCheerRipple(binding?.imgLogoTeam1!!, 0)
-                setupTeamCheerRipple(binding?.imgLogoTeam2!!, 1)
+                setupTeamCheerRipple(binding?.frameCheerTeam1!!, 0)
+                setupTeamCheerRipple(binding?.frameCheerTeam2!!, 1)
             }
             if (widgetViewModel?.widgetStateFlow?.value == null)
                 widgetViewModel?.widgetStateFlow?.value = WidgetStates.READY
