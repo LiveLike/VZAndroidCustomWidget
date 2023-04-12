@@ -3,6 +3,7 @@ package com.android.vzexample.poll
 import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,12 +16,18 @@ import com.android.vzexample.R
 import com.android.vzexample.databinding.CustomPollWidgetBinding
 import com.android.vzexample.databinding.PollTextListItemBinding
 import com.livelike.engagementsdk.OptionsItem
+import com.livelike.engagementsdk.publicapis.LiveLikeCallback
+import com.livelike.engagementsdk.widget.data.models.PollWidgetUserInteraction
 import com.livelike.engagementsdk.widget.widgetModel.PollWidgetModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 
 
 class CustomPollWidget : ConstraintLayout {
     var pollWidgetModel: PollWidgetModel? = null
     private lateinit var binding: CustomPollWidgetBinding
+    protected val uiScope = MainScope()
 
     constructor(context: Context) : super(context) {
         init(null, 0)
@@ -52,6 +59,20 @@ class CustomPollWidget : ConstraintLayout {
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+
+        pollWidgetModel?.loadInteractionHistory(object :
+            LiveLikeCallback<List<PollWidgetUserInteraction>>() {
+            override fun onResponse(result: List<PollWidgetUserInteraction>?, error: String?) {
+                if (result != null) {
+                    if (result.isNotEmpty()) {
+                        for (element in result) {
+                            Log.d("interaction-poll", element.optionId)
+                        }
+                    }
+                }
+            }
+        })
+
         pollWidgetModel?.widgetData?.let { liveLikeWidget ->
             binding.txtTitle.text = liveLikeWidget.question
             binding.pollTitle.text = "TEXT POLL"
@@ -82,7 +103,10 @@ class CustomPollWidget : ConstraintLayout {
                         options.forEach { op ->
                             adapter.optionIdCount[op.id!!] = op.voteCount ?: 0
                         }
-                        adapter.notifyDataSetChanged()
+
+                        uiScope.launch  {
+                            adapter.notifyDataSetChanged()
+                        }
                     }
                 }
             }
@@ -159,7 +183,7 @@ class PollListAdapter(
         holder.itemTextBinding.layPollTextOption.setOnClickListener {
             selectedIndex = holder.adapterPosition
             pollListener?.onSelectOption(item.id!!)
-            notifyDataSetChanged()
+            //notifyDataSetChanged()
         }
     }
 

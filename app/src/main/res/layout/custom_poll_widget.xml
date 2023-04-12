@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#1E1E1E"
+    android:background="@drawable/poll_meter_rounded_corner_black_background_bottom"
     android:orientation="vertical"
     android:padding="5dp">
 

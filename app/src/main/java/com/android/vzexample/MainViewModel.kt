@@ -32,7 +32,7 @@ class MainViewModel : ViewModel() {
             clientId = "8PqSNDgIVHnXuJuGte1HdvOjOqhCFE1ZCR3qhqaS",
             accessTokenDelegate = object: AccessTokenDelegate {
                 override fun getAccessToken(): String? {
-                    return "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2Nlc3NfdG9rZW4iOiJlNTc5YmQxOWNlNTRkYmU2N2VlMmE5ODE4MjljYTliOWQxMDEzOTNmIiwiaXNzIjoiYmxhc3RydCIsImNsaWVudF9pZCI6IjhQcVNORGdJVkhuWHVKdUd0ZTFIZHZPak9xaENGRTFaQ1IzcWhxYVMiLCJpYXQiOjE2ODA3NzU1MDksImlkIjoiZWFiYWRkY2UtOGJlOS00ZDA1LWI1MmMtNmE4ODUyZmU4NDVmIn0.DYOSKGCyGkMCNl_LUAJXi6RJA_v8Ufa9mXF9NG3Gk0Q"
+                    return null
                 }
                 override fun storeAccessToken(accessToken: String?) {
                 }
@@ -61,6 +61,7 @@ class MainViewModel : ViewModel() {
             override fun onResponse(result: LiveLikeWidget?, error: String?) {
                 result?.let {
                     viewModel.value = contentSession.getWidgetModelFromLiveLikeWidget(it) as PollWidgetModel
+//                    viewModel.value!!.getUserInteraction()
                 }
                 error?.let {
                     println("error---" + it)

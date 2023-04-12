@@ -2,6 +2,8 @@ package com.android.vzexample
 
 import android.os.Bundle
 import android.view.View
+import android.widget.FrameLayout
+import android.widget.Space
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -58,7 +60,10 @@ class MainActivity : AppCompatActivity() {
         if(views.size == 2){
             for (index in views.indices) {
                 runOnUiThread {
-                    binding.root.addView(views[index], index)
+                    val space = Space(baseContext)
+                    space.minimumHeight = 20
+                    binding.root.addView(views[index])
+                    binding.root.addView(space)
                 }
             }
         }
