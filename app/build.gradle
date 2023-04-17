@@ -51,8 +51,10 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    implementation 'com.livelike.android-engagement-sdk:livelike-kotlin-widget:2.74'
-    implementation 'com.livelike.android-engagement-sdk:livelike-kotlin-common:2.74'
-    implementation 'com.livelike.android-engagement-sdk:livelike-core-network:2.74'
-    implementation 'com.livelike.android-engagement-sdk:livelike-core-utils:2.74'
+    implementation 'com.livelike.android-engagement-sdk:livelike-kotlin-widget:2.74.1'
+    implementation 'com.livelike.android-engagement-sdk:livelike-kotlin-common:2.74.1'
+    implementation 'com.livelike.android-engagement-sdk:livelike-core-network:2.74.1'
+    implementation 'com.livelike.android-engagement-sdk:livelike-core-utils:2.74.1'
+    implementation 'com.livelike.android-engagement-sdk:livelike-kotlin-gamification:2.74.1'
+
 }

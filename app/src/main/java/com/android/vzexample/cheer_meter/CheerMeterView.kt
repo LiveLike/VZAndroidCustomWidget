@@ -12,12 +12,13 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.android.vzexample.databinding.WidgetCheerMeterBinding
 import com.bumptech.glide.Glide
+import com.livelike.engagementsdk.publicapis.LiveLikeCallback
+import com.livelike.engagementsdk.widget.data.models.CheerMeterUserInteraction
 import com.livelike.engagementsdk.widget.model.Resource
 import com.livelike.engagementsdk.widget.viewModel.BaseViewModel
 import com.livelike.engagementsdk.widget.viewModel.CheerMeterViewModel
 import com.livelike.engagementsdk.widget.viewModel.CheerMeterWidget
 import com.livelike.engagementsdk.widget.viewModel.WidgetStates
-import com.livelike.utils.parseISODateTime
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import kotlin.math.max
@@ -51,6 +52,21 @@ class CheerMeterView(context: Context, attr: AttributeSet? = null) :
                 viewModel?.voteEndFlow?.collect { endObserver(it) }
             }
         }
+
+        if(viewModel?.getUserInteraction() == null) {
+            viewModel?.loadInteractionHistory(object :
+                LiveLikeCallback<List<CheerMeterUserInteraction>>() {
+                override fun onResponse(result: List<CheerMeterUserInteraction>?, error: String?) {
+                    if (result != null) {
+                        if (result.isNotEmpty()) {
+                            uiScope.launch {
+                                setVisibityForPowerBar()
+                            }
+                        }
+                    }
+                }
+            })
+        }
     }
 
     private fun resultObserver(resource: Resource?) {
@@ -83,6 +99,8 @@ class CheerMeterView(context: Context, attr: AttributeSet? = null) :
                 binding?.txtCheerMeterTeam1?.text = "${voteOnePercent}%"
                 binding?.txtCheerMeterTeam2?.text = "${(100-voteOnePercent)}%"
             }
+
+            setVisibityForPowerBar()
             if (mShowTeamResults) {
                 mShowTeamResults = false
                 showTeamResults(it)
@@ -105,10 +123,10 @@ class CheerMeterView(context: Context, attr: AttributeSet? = null) :
             }
 
             binding?.txtCheerMeterTitle?.text = resource.question
-            resource.interactiveUntil?.parseISODateTime()?.let {
-                val epochTimeMs = it.toInstant().toEpochMilli()
-                viewModel?.startInteractiveUntilTimeout(epochTimeMs)
-            }
+//            resource.interactiveUntil?.parseISODateTime()?.let {
+//                val epochTimeMs = it.toInstant().toEpochMilli()
+//                viewModel?.startInteractiveUntilTimeout(epochTimeMs)
+//            }
             if (optionList.size == 2) {
                 binding?.txtCheerMeterTeam1?.text = optionList[0].voteCount.toString()
                 Glide.with(context.applicationContext)
@@ -124,6 +142,9 @@ class CheerMeterView(context: Context, attr: AttributeSet? = null) :
                 setupTeamCheerRipple(binding?.frameCheerTeam1!!, 0)
                 setupTeamCheerRipple(binding?.frameCheerTeam2!!, 1)
             }
+
+            setVisibityForPowerBar()
+
             if (widgetViewModel?.widgetStateFlow?.value == null)
                 widgetViewModel?.widgetStateFlow?.value = WidgetStates.READY
         }
@@ -132,6 +153,16 @@ class CheerMeterView(context: Context, attr: AttributeSet? = null) :
             inflated = false
             removeAllViews()
             parent?.let { (it as ViewGroup).removeAllViews() }
+        }
+    }
+
+    private fun setVisibityForPowerBar(){
+        if ((viewModel?.getUserInteraction()?.totalScore ?: 0) > 0) {
+            binding?.txtCheerMeterTeam1?.visibility = View.VISIBLE
+            binding?.txtCheerMeterTeam2?.visibility = View.VISIBLE
+        } else {
+            binding?.txtCheerMeterTeam1?.visibility = View.INVISIBLE
+            binding?.txtCheerMeterTeam2?.visibility = View.INVISIBLE
         }
     }
 

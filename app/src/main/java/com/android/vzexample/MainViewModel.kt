@@ -45,36 +45,37 @@ class MainViewModel : ViewModel() {
     fun fetchWidget() {
         contentSession = liveLike.value?.createContentSession(
             programId = "09d93835-ee52-4757-976c-ea09d6a5798c",
-            timecodeGetter = object:LiveLikeKotlin.TimecodeGetterCore{
+            timecodeGetter = object : LiveLikeKotlin.TimecodeGetterCore {
                 override fun getTimecode(): EpochTime {
                     return EpochTime(0)
                 }
 
             },
-            isPlatformLocalContentImageUrl = {false},
+            isPlatformLocalContentImageUrl = { false },
             uiDispatcher = Dispatchers.Default
         ) as ContentSession
 
-        liveLike.value?.fetchWidgetDetails("b6d08e72-00d3-4827-be66-46ce5cc5d411",
-        "text-poll",
-        object : LiveLikeCallback<LiveLikeWidget>() {
-            override fun onResponse(result: LiveLikeWidget?, error: String?) {
-                result?.let {
-                    viewModel.value = contentSession.getWidgetModelFromLiveLikeWidget(it) as PollWidgetModel
-//                    viewModel.value!!.getUserInteraction()
+        liveLike.value?.fetchWidgetDetails("25a04ec3-d93f-4fe2-bc18-6e65931618e0",
+            "text-poll",
+            object : LiveLikeCallback<LiveLikeWidget>() {
+                override fun onResponse(result: LiveLikeWidget?, error: String?) {
+                    result?.let {
+                        viewModel.value =
+                            contentSession.getWidgetModelFromLiveLikeWidget(it) as PollWidgetModel
+                    }
+                    error?.let {
+                        println("error---" + it)
+                    }
                 }
-                error?.let {
-                    println("error---" + it)
-                }
-            }
-        })
+            })
 
         liveLike.value?.fetchWidgetDetails("4efbb87b-afef-45c8-a767-25efaf5e0256",
             "cheer-meter",
             object : LiveLikeCallback<LiveLikeWidget>() {
                 override fun onResponse(result: LiveLikeWidget?, error: String?) {
                     result?.let {
-                        cheerMeterViewModel.value = contentSession.getWidgetModelFromLiveLikeWidget(it) as CheerMeterViewModel
+                        cheerMeterViewModel.value =
+                            contentSession.getWidgetModelFromLiveLikeWidget(it) as CheerMeterViewModel
                     }
                     error?.let {
                         println("error---" + it)

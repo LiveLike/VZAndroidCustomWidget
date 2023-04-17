@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.vzexample.R
@@ -19,7 +18,6 @@ import com.livelike.engagementsdk.OptionsItem
 import com.livelike.engagementsdk.publicapis.LiveLikeCallback
 import com.livelike.engagementsdk.widget.data.models.PollWidgetUserInteraction
 import com.livelike.engagementsdk.widget.widgetModel.PollWidgetModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
@@ -60,23 +58,10 @@ class CustomPollWidget : ConstraintLayout {
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
 
-        pollWidgetModel?.loadInteractionHistory(object :
-            LiveLikeCallback<List<PollWidgetUserInteraction>>() {
-            override fun onResponse(result: List<PollWidgetUserInteraction>?, error: String?) {
-                if (result != null) {
-                    if (result.isNotEmpty()) {
-                        for (element in result) {
-                            Log.d("interaction-poll", element.optionId)
-                        }
-                    }
-                }
-            }
-        })
-
         pollWidgetModel?.widgetData?.let { liveLikeWidget ->
             binding.txtTitle.text = liveLikeWidget.question
-            binding.pollTitle.text = "TEXT POLL"
-
+            val attribute = liveLikeWidget.widgetAttributes?.find { it.key == "custom-attribute" }
+            binding.pollTitle.text = attribute?.value?:"TEXT POLL"
 
             liveLikeWidget.options?.let { list ->
                 binding.rcylPollList.layoutManager =
@@ -86,6 +71,8 @@ class CustomPollWidget : ConstraintLayout {
                         context,
                         ArrayList(list.map { item -> item!! })
                     )
+
+                adapter.prevInteractionExist = pollWidgetModel?.getUserInteraction() != null
                 binding.rcylPollList.adapter = adapter
                 list.forEach { op ->
                     op?.let {
@@ -109,8 +96,27 @@ class CustomPollWidget : ConstraintLayout {
                         }
                     }
                 }
+                if(pollWidgetModel?.getUserInteraction() == null) {
+                    pollWidgetModel?.loadInteractionHistory(object :
+                        LiveLikeCallback<List<PollWidgetUserInteraction>>() {
+                        override fun onResponse(result: List<PollWidgetUserInteraction>?, error: String?) {
+                            if (result != null) {
+                                if (result.isNotEmpty()) {
+                                    for (element in result) {
+                                        adapter.prevInteractionExist = true
+                                        uiScope.launch  {
+                                            adapter.notifyDataSetChanged()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    })
+                }
             }
         }
+
+
     }
 
 
@@ -128,6 +134,7 @@ class PollListAdapter(
     var selectedIndex = -1
     val optionIdCount: HashMap<String, Int> = hashMapOf()
     var pollListener: PollListener? = null
+    var prevInteractionExist = false
 
 
     interface PollListener {
@@ -148,8 +155,11 @@ class PollListAdapter(
         val item = list[index]
         
         if (optionIdCount.containsKey(item.id)) {
-            holder.itemTextBinding.txtPercent.visibility = View.VISIBLE
-            holder.itemTextBinding.progressBarText.visibility = View.VISIBLE
+            if (prevInteractionExist) {
+                holder.itemTextBinding.txtPercent.visibility = View.VISIBLE
+                holder.itemTextBinding.progressBarText.visibility = View.VISIBLE
+            }
+
             val total = optionIdCount.values.reduce { acc, i -> acc + i }
             val percent = when (total > 0) {
                 true -> (optionIdCount[item.id!!]!!.toFloat() / total.toFloat()) * 100
@@ -157,9 +167,6 @@ class PollListAdapter(
             }
             holder.itemTextBinding.txtPercent.text = "${percent.toInt()} %"
             holder.itemTextBinding.progressBarText.progress = percent.toInt()
-        } else {
-            holder.itemTextBinding.txtPercent.visibility = View.INVISIBLE
-            holder.itemTextBinding.progressBarText.visibility = View.INVISIBLE
         }
         holder.itemTextBinding.textPollItem.text = "${item.description}"
         if (selectedIndex == index) {
@@ -183,7 +190,8 @@ class PollListAdapter(
         holder.itemTextBinding.layPollTextOption.setOnClickListener {
             selectedIndex = holder.adapterPosition
             pollListener?.onSelectOption(item.id!!)
-            //notifyDataSetChanged()
+            prevInteractionExist = true
+            notifyDataSetChanged()
         }
     }
 
