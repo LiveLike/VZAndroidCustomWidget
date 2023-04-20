@@ -1,14 +1,13 @@
 package com.android.vzexample.poll
 
 import android.content.Context
-import android.graphics.Color
+import android.content.res.Resources
 import android.util.AttributeSet
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.Dimension
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.vzexample.R
@@ -61,18 +60,16 @@ class CustomPollWidget : ConstraintLayout {
         pollWidgetModel?.widgetData?.let { liveLikeWidget ->
             binding.txtTitle.text = liveLikeWidget.question
             val attribute = liveLikeWidget.widgetAttributes?.find { it.key == "custom-attribute" }
-            binding.pollTitle.text = attribute?.value?:"TEXT POLL"
+            binding.pollTitle.text = attribute?.value ?: "TEXT POLL"
 
             liveLikeWidget.options?.let { list ->
                 binding.rcylPollList.layoutManager =
                     LinearLayoutManager(context, RecyclerView.VERTICAL, false)
                 val adapter =
                     PollListAdapter(
-                        context,
                         ArrayList(list.map { item -> item!! })
                     )
 
-                adapter.prevInteractionExist = pollWidgetModel?.getUserInteraction() != null
                 binding.rcylPollList.adapter = adapter
                 list.forEach { op ->
                     op?.let {
@@ -91,20 +88,23 @@ class CustomPollWidget : ConstraintLayout {
                             adapter.optionIdCount[op.id!!] = op.voteCount ?: 0
                         }
 
-                        uiScope.launch  {
+                        uiScope.launch {
                             adapter.notifyDataSetChanged()
                         }
                     }
                 }
-                if(pollWidgetModel?.getUserInteraction() == null) {
+                if (pollWidgetModel?.getUserInteraction() == null) {
                     pollWidgetModel?.loadInteractionHistory(object :
                         LiveLikeCallback<List<PollWidgetUserInteraction>>() {
-                        override fun onResponse(result: List<PollWidgetUserInteraction>?, error: String?) {
+                        override fun onResponse(
+                            result: List<PollWidgetUserInteraction>?,
+                            error: String?
+                        ) {
                             if (result != null) {
                                 if (result.isNotEmpty()) {
                                     for (element in result) {
-                                        adapter.prevInteractionExist = true
-                                        uiScope.launch  {
+                                        adapter.selectedOptionId = element.optionId
+                                        uiScope.launch {
                                             adapter.notifyDataSetChanged()
                                         }
                                     }
@@ -127,15 +127,12 @@ class CustomPollWidget : ConstraintLayout {
 }
 
 class PollListAdapter(
-    private val context: Context,
     private val list: ArrayList<OptionsItem>
 ) :
     RecyclerView.Adapter<PollListAdapter.PollListItemTextViewHolder>() {
-    var selectedIndex = -1
+    var selectedOptionId: String? = null
     val optionIdCount: HashMap<String, Int> = hashMapOf()
     var pollListener: PollListener? = null
-    var prevInteractionExist = false
-
 
     interface PollListener {
         fun onSelectOption(id: String)
@@ -148,14 +145,21 @@ class PollListAdapter(
         val itemTextBinding =
             PollTextListItemBinding.inflate(LayoutInflater.from(p0.context), p0, false)
 
+        if(list.count() > 2){
+            itemTextBinding.root.layoutParams.height = dpToPx(48)
+        }
         return PollListItemTextViewHolder(itemTextBinding)
     }
 
+    fun dpToPx(dp: Int): Int {
+        val scale = Resources.getSystem().displayMetrics.density
+        return (dp * scale + 0.5f).toInt()
+    }
     override fun onBindViewHolder(holder: PollListItemTextViewHolder, index: Int) {
         val item = list[index]
-        
+
         if (optionIdCount.containsKey(item.id)) {
-            if (prevInteractionExist) {
+            if (selectedOptionId != null) {
                 holder.itemTextBinding.txtPercent.visibility = View.VISIBLE
                 holder.itemTextBinding.progressBarText.visibility = View.VISIBLE
             }
@@ -169,28 +173,17 @@ class PollListAdapter(
             holder.itemTextBinding.progressBarText.progress = percent.toInt()
         }
         holder.itemTextBinding.textPollItem.text = "${item.description}"
-        if (selectedIndex == index) {
-            holder.itemTextBinding.layPollTextOption.setBackgroundResource(R.drawable.image_option_background_selected_drawable)
-            holder.itemTextBinding.textPollItem.setTextColor(Color.WHITE)
-            holder.itemTextBinding.txtPercent.setTextColor(Color.WHITE)
-//            holder.itemTextBinding.progressBarText.progressDrawable = ContextCompat.getDrawable(
-//                context,
-//                R.drawable.custom_progress_color_options_selected
-//            )
-        } else {
+        if(selectedOptionId == null){
+            holder.itemTextBinding.layPollTextOption.setBackgroundResource(R.drawable.image_option_background_stroke_unselected)
+        }else if (selectedOptionId == item.id) {
             holder.itemTextBinding.layPollTextOption.setBackgroundResource(R.drawable.image_option_background_stroke_drawable)
-//            holder.itemTextBinding.textPollItem.setTextColor(Color.BLACK)
-//            holder.itemTextBinding.txtPercent.setTextColor(Color.BLACK)
-            holder.itemTextBinding.progressBarText.progressDrawable = ContextCompat.getDrawable(
-                context,
-                R.drawable.custom_progress_color_options
-            )
+        } else {
+            holder.itemTextBinding.layPollTextOption.setBackgroundResource(R.drawable.image_option_background_selected_drawable)
         }
 
         holder.itemTextBinding.layPollTextOption.setOnClickListener {
-            selectedIndex = holder.adapterPosition
+            selectedOptionId = item.id
             pollListener?.onSelectOption(item.id!!)
-            prevInteractionExist = true
             notifyDataSetChanged()
         }
     }

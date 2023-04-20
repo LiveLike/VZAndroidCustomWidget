@@ -32,7 +32,16 @@ class MainActivity : AppCompatActivity() {
         })
 
         // Observe the LiveData in the ViewModel
-        viewModel.viewModel.observe(this, Observer { viewModel ->
+        viewModel.textPollViewModel1.observe(this, Observer { viewModel ->
+            // Update UI with myData
+            val widetView = CustomPollWidget(this@MainActivity).apply {
+                this.pollWidgetModel = viewModel
+            }
+            addViews(widetView)
+
+        })
+
+        viewModel.textPollViewModel2.observe(this, Observer { viewModel ->
             // Update UI with myData
             val widetView = CustomPollWidget(this@MainActivity).apply {
                 this.pollWidgetModel = viewModel
@@ -57,13 +66,13 @@ class MainActivity : AppCompatActivity() {
 
     fun addViews(view: View){
         views.add(view)
-        if(views.size == 2){
+        if(views.size == 3){
             for (index in views.indices) {
                 runOnUiThread {
                     val space = Space(baseContext)
                     space.minimumHeight = 20
-                    binding.root.addView(views[index])
-                    binding.root.addView(space)
+                    binding.mainContainer.addView(views[index])
+                    binding.mainContainer.addView(space)
                 }
             }
         }
