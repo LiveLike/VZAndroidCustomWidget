@@ -10,6 +10,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import com.android.vzexample.R
 import com.android.vzexample.databinding.WidgetCheerMeterBinding
 import com.bumptech.glide.Glide
 import com.livelike.engagementsdk.publicapis.LiveLikeCallback
@@ -178,9 +179,14 @@ class CheerMeterView(context: Context, attr: AttributeSet? = null) :
                             if (teamIndex == 0) {
                                 binding?.txtCheerMeterTeam1!!.animate().alpha(1F)
                                     .setDuration(30).start()
+
+                                binding?.frameCheerTeam1!!.setBackgroundResource(R.drawable.cheer_meter_btn_selected)
+                                binding?.frameCheerTeam2!!.setBackgroundResource(R.drawable.cheer_meter_background_stroke_drawable)
                             } else {
                                 binding?.txtCheerMeterTeam2!!.animate().alpha(1F)
                                     .setDuration(30).start()
+                                binding?.frameCheerTeam2!!.setBackgroundResource(R.drawable.cheer_meter_btn_selected)
+                                binding?.frameCheerTeam1!!.setBackgroundResource(R.drawable.cheer_meter_background_stroke_drawable)
                             }
                             handler.removeCallbacksAndMessages(null)
                         return false
