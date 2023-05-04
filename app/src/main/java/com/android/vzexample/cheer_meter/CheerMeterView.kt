@@ -45,6 +45,7 @@ class CheerMeterView(context: Context, attr: AttributeSet? = null) :
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         resourceObserver(viewModel?.dataFlow?.value)
+
         uiScope.launch {
             launch {
                 viewModel?.resultsFlow?.collect { resultObserver(it) }
@@ -130,12 +131,13 @@ class CheerMeterView(context: Context, attr: AttributeSet? = null) :
 //            }
             if (optionList.size == 2) {
                 binding?.txtCheerMeterTeam1?.text = optionList[0].voteCount.toString()
+                binding?.team1Text?.text = optionList[0].description
                 Glide.with(context.applicationContext)
                     .load(optionList[0].imageUrl)
                     .into(binding?.imgLogoTeam1!!)
 
-                binding?.txtCheerMeterTeam2?.text = optionList[0].voteCount.toString()
-
+                binding?.txtCheerMeterTeam2?.text = optionList[1].voteCount.toString()
+                binding?.team2Text?.text = optionList[1].description
                 Glide.with(context.applicationContext)
                     .load(optionList[1].imageUrl)
                     .into(binding?.imgLogoTeam2!!)
